@@ -1,0 +1,62 @@
+[
+  {
+    "doctype": "Custom Field",
+    "name": "Purchase Invoice-gasto_prorrateado",
+    "dt": "Purchase Invoice",
+    "fieldname": "gasto_prorrateado",
+    "fieldtype": "Link",
+    "options": "Gasto Prorrateado",
+    "label": "Gasto Prorrateado",
+    "insert_after": "remarks",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "in_standard_filter": 1,
+    "search_index": 1,
+    "description": "Referencia al Gasto Prorrateado que generó esta factura."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Purchase Invoice-porcentaje_aplicado",
+    "dt": "Purchase Invoice",
+    "fieldname": "porcentaje_aplicado",
+    "fieldtype": "Float",
+    "label": "Porcentaje Aplicado (%)",
+    "insert_after": "gasto_prorrateado",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "precision": "4",
+    "description": "Porcentaje del gasto total asignado a esta empresa."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payment Entry-gasto_prorrateado",
+    "dt": "Payment Entry",
+    "fieldname": "gasto_prorrateado",
+    "fieldtype": "Link",
+    "options": "Gasto Prorrateado",
+    "label": "Gasto Prorrateado",
+    "insert_after": "remarks",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "in_standard_filter": 1,
+    "search_index": 1,
+    "description": "Referencia al Gasto Prorrateado que generó este pago."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payment Entry-empresa_prorrateada",
+    "dt": "Payment Entry",
+    "fieldname": "empresa_prorrateada",
+    "fieldtype": "Link",
+    "options": "Company",
+    "label": "Empresa Prorrateada",
+    "insert_after": "gasto_prorrateado",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "description": "Empresa a la que corresponde este pago dentro del prorrateo."
+  }
+]

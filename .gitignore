@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+
+# macOS
+__MACOSX/
+.DS_Store
+._*
+
+# Frappe
+*.pyc
+node_modules/

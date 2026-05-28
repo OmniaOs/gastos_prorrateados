@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "empresa",
+  "modo_pago",
+  "cuenta_bancaria",
+  "referencia_pago"
+ ],
+ "fields": [
+  {
+   "fieldname": "empresa",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "modo_pago",
+   "fieldtype": "Link",
+   "label": "Modo de Pago",
+   "options": "Mode of Payment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "cuenta_bancaria",
+   "fieldtype": "Link",
+   "label": "Cuenta Bancaria",
+   "options": "Bank Account",
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "referencia_pago",
+   "fieldtype": "Data",
+   "label": "Referencia de Pago",
+   "in_list_view": 1,
+   "columns": 3
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2024-01-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Gastos Prorrateados",
+ "name": "Linea Pago Empresa",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

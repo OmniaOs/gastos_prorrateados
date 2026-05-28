@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2024-01-01 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "proveedor",
+  "fecha",
+  "col_break_header",
+  "moneda",
+  "tipo_cambio",
+  "monto_total",
+  "section_producto",
+  "producto",
+  "descripcion",
+  "col_break_producto",
+  "perfil_prorrateo",
+  "section_lineas",
+  "lineas_gasto",
+  "section_pago",
+  "pago_inmediato",
+  "pago_por_empresa",
+  "pagos_por_empresa",
+  "modo_pago",
+  "cuenta_bancaria",
+  "referencia_pago",
+  "section_estado",
+  "estado",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Serie",
+   "options": "GP-.YYYY.-.####\n",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "proveedor",
+   "fieldtype": "Link",
+   "label": "Proveedor",
+   "options": "Supplier",
+   "reqd": 1,
+   "search_index": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "fecha",
+   "fieldtype": "Date",
+   "label": "Fecha",
+   "reqd": 1,
+   "default": "Today",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "col_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "moneda",
+   "fieldtype": "Link",
+   "label": "Moneda",
+   "options": "Currency",
+   "description": "Dejar vacío para usar la moneda predeterminada de cada empresa."
+  },
+  {
+   "fieldname": "tipo_cambio",
+   "fieldtype": "Float",
+   "label": "Tipo de Cambio",
+   "default": "1",
+   "precision": "6"
+  },
+  {
+   "fieldname": "monto_total",
+   "fieldtype": "Currency",
+   "label": "Monto Total",
+   "reqd": 1,
+   "options": "moneda"
+  },
+  {
+   "fieldname": "section_producto",
+   "fieldtype": "Section Break",
+   "label": "Detalle del Gasto",
+   "depends_on": "eval:doc.monto_total > 0"
+  },
+  {
+   "fieldname": "producto",
+   "fieldtype": "Link",
+   "label": "Producto / Servicio",
+   "options": "Item",
+   "reqd": 1,
+   "description": "La cuenta de gasto se toma de los defaults del producto por empresa."
+  },
+  {
+   "fieldname": "descripcion",
+   "fieldtype": "Small Text",
+   "label": "Descripción"
+  },
+  {
+   "fieldname": "col_break_producto",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "perfil_prorrateo",
+   "fieldtype": "Link",
+   "label": "Perfil de Prorrateo",
+   "options": "Perfil de Prorrateo",
+   "description": "Seleccionar un perfil carga automáticamente las líneas. Puedes ajustar los porcentajes después."
+  },
+  {
+   "fieldname": "section_lineas",
+   "fieldtype": "Section Break",
+   "label": "Distribución por Empresa",
+   "depends_on": "eval:doc.monto_total > 0 && doc.producto"
+  },
+  {
+   "fieldname": "lineas_gasto",
+   "fieldtype": "Table",
+   "label": "Líneas de Distribución",
+   "options": "Linea Gasto Prorrateado",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_pago",
+   "fieldtype": "Section Break",
+   "label": "Pago Inmediato (POS)",
+   "collapsible": 1,
+   "depends_on": "eval:doc.monto_total > 0 && doc.producto"
+  },
+  {
+   "fieldname": "pago_inmediato",
+   "fieldtype": "Check",
+   "label": "Marcar como pagado al generar",
+   "default": "0",
+   "description": "Si está activo, se crearán Payment Entries automáticamente al enviar."
+  },
+  {
+   "fieldname": "pago_por_empresa",
+   "fieldtype": "Check",
+   "label": "Configurar pago por empresa",
+   "default": "0",
+   "depends_on": "eval:doc.pago_inmediato==1",
+   "description": "Activa para asignar modo de pago, cuenta y referencia individualmente por empresa."
+  },
+  {
+   "fieldname": "pagos_por_empresa",
+   "fieldtype": "Table",
+   "label": "Pagos por Empresa",
+   "options": "Linea Pago Empresa",
+   "depends_on": "eval:doc.pago_inmediato==1 && doc.pago_por_empresa"
+  },
+  {
+   "fieldname": "modo_pago",
+   "fieldtype": "Link",
+   "label": "Modo de Pago (global)",
+   "options": "Mode of Payment",
+   "depends_on": "eval:doc.pago_inmediato==1 && !doc.pago_por_empresa",
+   "mandatory_depends_on": "eval:doc.pago_inmediato==1 && !doc.pago_por_empresa"
+  },
+  {
+   "fieldname": "cuenta_bancaria",
+   "fieldtype": "Link",
+   "label": "Cuenta Bancaria (global)",
+   "options": "Bank Account",
+   "depends_on": "eval:doc.pago_inmediato==1 && !doc.pago_por_empresa",
+   "description": "Cuenta de donde se efectuará el pago para todas las empresas."
+  },
+  {
+   "fieldname": "referencia_pago",
+   "fieldtype": "Data",
+   "label": "Referencia de Pago (global)",
+   "depends_on": "eval:doc.pago_inmediato==1 && !doc.pago_por_empresa",
+   "description": "Número de transferencia, cheque, etc."
+  },
+  {
+   "fieldname": "section_estado",
+   "fieldtype": "Section Break",
+   "label": "Estado"
+  },
+  {
+   "fieldname": "estado",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "\nBorrador\nGenerado\nPagado",
+   "default": "Borrador",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Enmendado Desde",
+   "options": "Gasto Prorrateado",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-01-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Gastos Prorrateados",
+ "name": "Gasto Prorrateado",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 0,
+   "cancel": 0,
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 0,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Grey",
+   "title": "Borrador"
+  },
+  {
+   "color": "Blue",
+   "title": "Generado"
+  },
+  {
+   "color": "Green",
+   "title": "Pagado"
+  }
+ ],
+ "track_changes": 1
+}
