@@ -11,7 +11,11 @@ echo "==> Obteniendo $APP desde GitHub..."
 cd "$BENCH_DIR" && bench get-app https://github.com/OmniaOs/gastos_prorrateados.git --skip-assets
 
 echo "==> Registrando en apps.txt..."
-grep -q "$APP" "$APPS_TXT" || echo "$APP" >> "$APPS_TXT"
+# Eliminar entradas incorrectas de intentos anteriores
+sed -i '/erpnext-gastos-prorrateados/d' "$APPS_TXT" 2>/dev/null
+sed -i '/erpnextgastos_prorrateados/d' "$APPS_TXT" 2>/dev/null
+# Agregar con coincidencia exacta de línea completa
+grep -qxF "$APP" "$APPS_TXT" || echo "$APP" >> "$APPS_TXT"
 
 echo "==> Instalando en el sitio $SITE..."
 bench --site "$SITE" install-app "$APP"
