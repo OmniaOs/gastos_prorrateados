@@ -22,7 +22,7 @@ fixtures = [
 
 # Módulos del workspace
 app_include_css = []
-app_include_js = []
+app_include_js = ["/files/qz_security.js"]
 
 # DocTypes que se incluyen en el módulo
 required_apps = ["erpnext"]
