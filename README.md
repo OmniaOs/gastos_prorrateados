@@ -46,7 +46,7 @@ Navega a **Gastos Prorrateados → Perfil de Prorrateo** y define la distribuci�
 
 ERPNext creará automáticamente una Purchase Invoice por cada empresa con el monto proporcional.
 
-> **Fechas anteriores (backdating):** la **Fecha** del gasto se propaga como `posting_date` a las Purchase Invoices y Payment Entries generadas, incluso si es una fecha pasada (los documentos se crean con `set_posting_time = 1`). Si ERPNext rechaza una fecha anterior, revisa que no esté antes de **"Contabilidad congelada hasta"** (Accounts Settings → *Accounts Frozen Upto*).
+> **Fechas anteriores (backdating):** la **Fecha** del gasto se propaga como `posting_date` a las Purchase Invoices y Payment Entries generadas, incluso si es una fecha pasada (los documentos se crean con `set_posting_time = 1`). Si ERPNext rechaza una fecha anterior, revisa que: (1) caiga dentro de un **Año Fiscal activo** de la empresa (de lo contrario: `FiscalYearError`), y (2) no esté antes de **"Contabilidad congelada hasta"** (Accounts Settings → *Accounts Frozen Upto*). Ambos son configuración del ERP, no del módulo.
 
 ### 3. Actualizar el módulo
 
