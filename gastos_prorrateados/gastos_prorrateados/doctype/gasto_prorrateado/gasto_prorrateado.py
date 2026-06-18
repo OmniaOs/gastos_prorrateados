@@ -96,7 +96,12 @@ class GastoProrrateado(Document):
             pi = frappe.new_doc("Purchase Invoice")
             pi.company = linea.empresa
             pi.supplier = self.proveedor
+            # set_posting_time=1 evita que AccountsController.validate_posting_time()
+            # sobrescriba posting_date con la fecha de hoy: así se respeta self.fecha
+            # cuando es una fecha anterior (backdating).
+            pi.set_posting_time = 1
             pi.posting_date = self.fecha
+            pi.bill_date = self.fecha
             pi.due_date = self.fecha
             pi.currency = moneda_empresa
             pi.conversion_rate = flt(self.tipo_cambio) or 1.0
@@ -177,6 +182,8 @@ class GastoProrrateado(Document):
             pe = frappe.new_doc("Payment Entry")
             pe.payment_type = "Pay"
             pe.company = linea.empresa
+            # Respetar la fecha del gasto (backdating); ver nota en generar_facturas_por_empresa.
+            pe.set_posting_time = 1
             pe.posting_date = self.fecha
             pe.mode_of_payment = modo_pago
             pe.party_type = "Supplier"
