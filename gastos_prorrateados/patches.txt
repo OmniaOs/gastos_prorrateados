@@ -1,1 +1,2 @@
+[post_model_sync]
 gastos_prorrateados.patches.v0_2_migrar_producto_a_productos
