@@ -10,9 +10,10 @@ class GastoProrrateado(Document):
     # ------------------------------------------------------------------
 
     def validate(self):
+        self.calcular_montos()
+        self.validar_productos()
         self.validar_porcentajes()
         self.validar_empresas_duplicadas()
-        self.calcular_montos()
         if self.pago_inmediato:
             self.validar_campos_pago()
 
@@ -30,6 +31,19 @@ class GastoProrrateado(Document):
     # ------------------------------------------------------------------
     # Validaciones
     # ------------------------------------------------------------------
+
+    def validar_productos(self):
+        if not self.productos:
+            frappe.throw(_("Debe agregar al menos un producto en la tabla <b>Productos</b>."))
+        for prod in self.productos:
+            if not prod.item_code:
+                frappe.throw(_("Hay una línea de producto sin Producto/Servicio seleccionado."))
+            if flt(prod.qty) <= 0:
+                frappe.throw(
+                    _("La cantidad del producto <b>{0}</b> debe ser mayor a cero.").format(prod.item_code)
+                )
+        if flt(self.monto_total) <= 0:
+            frappe.throw(_("El monto total (suma de los productos) debe ser mayor a cero."))
 
     def validar_porcentajes(self):
         if not self.lineas_gasto:
@@ -70,6 +84,13 @@ class GastoProrrateado(Document):
     # ------------------------------------------------------------------
 
     def calcular_montos(self):
+        # El monto total se deriva de la suma de los productos.
+        total = 0.0
+        for prod in self.productos:
+            prod.amount = flt(prod.qty) * flt(prod.rate)
+            total += flt(prod.amount)
+        self.monto_total = total
+
         for linea in self.lineas_gasto:
             linea.monto = flt(self.monto_total) * flt(linea.porcentaje) / 100.0
 
@@ -91,7 +112,6 @@ class GastoProrrateado(Document):
                 linea.centro_costo
                 or frappe.get_cached_value("Company", linea.empresa, "cost_center")
             )
-            cuenta_gasto = linea.cuenta_gasto or self._obtener_cuenta_gasto(linea.empresa)
 
             pi = frappe.new_doc("Purchase Invoice")
             pi.company = linea.empresa
@@ -112,17 +132,29 @@ class GastoProrrateado(Document):
                 f"{flt(linea.porcentaje)}% para {linea.empresa}"
             )
 
-            pi.append(
-                "items",
-                {
-                    "item_code": self.producto,
-                    "qty": 1,
-                    "rate": flt(linea.monto),
-                    "expense_account": cuenta_gasto,
-                    "cost_center": centro_costo,
-                    "description": self.descripcion or frappe.get_cached_value("Item", self.producto, "item_name"),
-                },
-            )
+            # Cada producto se agrega como línea, prorrateado por el % de la empresa.
+            # Se conserva la cantidad real y se escala el precio unitario (rate),
+            # de modo que el importe de la línea = importe_producto * porcentaje / 100.
+            pct = flt(linea.porcentaje)
+            for prod in self.productos:
+                cuenta_gasto = (
+                    linea.cuenta_gasto
+                    or self._obtener_cuenta_gasto(linea.empresa, prod.item_code)
+                )
+                qty = flt(prod.qty) or 1.0
+                amount_linea = flt(prod.amount) * pct / 100.0
+                pi.append(
+                    "items",
+                    {
+                        "item_code": prod.item_code,
+                        "qty": qty,
+                        "rate": amount_linea / qty,
+                        "expense_account": cuenta_gasto,
+                        "cost_center": centro_costo,
+                        "description": prod.descripcion
+                        or frappe.get_cached_value("Item", prod.item_code, "item_name"),
+                    },
+                )
 
             pi.set_missing_values()
             pi.insert(ignore_permissions=True)
@@ -131,11 +163,11 @@ class GastoProrrateado(Document):
             linea.db_set("factura_compra", pi.name)
             linea.db_set("estado_linea", "Generada")
 
-    def _obtener_cuenta_gasto(self, empresa):
-        """Resuelve la cuenta de gasto desde Item Defaults → Company default."""
+    def _obtener_cuenta_gasto(self, empresa, item):
+        """Resuelve la cuenta de gasto de un producto desde Item Defaults → Company default."""
         item_defaults = frappe.get_all(
             "Item Default",
-            filters={"parent": self.producto, "company": empresa},
+            filters={"parent": item, "company": empresa},
             fields=["expense_account"],
             limit=1,
         )
@@ -148,7 +180,7 @@ class GastoProrrateado(Document):
                 _(
                     "No se encontró cuenta de gasto para el producto <b>{0}</b> en la empresa <b>{1}</b>. "
                     "Configure los Item Defaults del producto o la cuenta de gasto predeterminada de la empresa."
-                ).format(self.producto, empresa)
+                ).format(item, empresa)
             )
         return company_default
 

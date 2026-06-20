@@ -118,8 +118,19 @@ frappe.ui.form.on("Gasto Prorrateado", {
     },
 
     moneda: function (frm) {
-        // Refrescar campos Currency en la tabla para que respeten la moneda
+        // Refrescar campos Currency en las tablas para que respeten la moneda
+        frm.refresh_field("productos");
         frm.refresh_field("lineas_gasto");
+    },
+
+    // Suma los importes de los productos hacia el Monto Total (campo calculado).
+    // Al cambiar monto_total se dispara recalcular_montos para repartir por empresa.
+    recalcular_total: function (frm) {
+        let total = 0;
+        (frm.doc.productos || []).forEach(function (p) {
+            total += flt(p.amount);
+        });
+        frm.set_value("monto_total", total);
     },
 
     // ------------------------------------------------------------------
@@ -250,5 +261,39 @@ frappe.ui.form.on("Linea Gasto Prorrateado", {
         if (frm.doc.pago_inmediato && frm.doc.pago_por_empresa) {
             frm.trigger("sincronizar_pagos_por_empresa");
         }
+    }
+});
+
+// ------------------------------------------------------------------
+// Eventos de la tabla de Productos
+// ------------------------------------------------------------------
+function recalcular_importe_producto(frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    frappe.model.set_value(cdt, cdn, "amount", flt(row.qty) * flt(row.rate));
+    frm.trigger("recalcular_total");
+}
+
+frappe.ui.form.on("Producto Gasto Prorrateado", {
+    item_code: function (frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.item_code && !row.descripcion) {
+            frappe.db.get_value("Item", row.item_code, "item_name").then(function (r) {
+                if (r.message && r.message.item_name) {
+                    frappe.model.set_value(cdt, cdn, "descripcion", r.message.item_name);
+                }
+            });
+        }
+    },
+
+    qty: function (frm, cdt, cdn) {
+        recalcular_importe_producto(frm, cdt, cdn);
+    },
+
+    rate: function (frm, cdt, cdn) {
+        recalcular_importe_producto(frm, cdt, cdn);
+    },
+
+    productos_remove: function (frm) {
+        frm.trigger("recalcular_total");
     }
 });

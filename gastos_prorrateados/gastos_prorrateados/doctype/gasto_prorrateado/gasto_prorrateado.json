@@ -14,10 +14,11 @@
   "tipo_cambio",
   "monto_total",
   "section_producto",
-  "producto",
+  "productos",
   "descripcion",
   "col_break_producto",
   "perfil_prorrateo",
+  "producto",
   "section_lineas",
   "lineas_gasto",
   "section_pago",
@@ -79,22 +80,31 @@
    "fieldname": "monto_total",
    "fieldtype": "Currency",
    "label": "Monto Total",
-   "reqd": 1,
-   "options": "moneda"
+   "read_only": 1,
+   "options": "moneda",
+   "description": "Calculado automáticamente como la suma de los productos."
   },
   {
    "fieldname": "section_producto",
    "fieldtype": "Section Break",
-   "label": "Detalle del Gasto",
-   "depends_on": "eval:doc.monto_total > 0"
+   "label": "Detalle del Gasto"
+  },
+  {
+   "fieldname": "productos",
+   "fieldtype": "Table",
+   "label": "Productos",
+   "options": "Producto Gasto Prorrateado",
+   "reqd": 1,
+   "description": "La cuenta de gasto de cada producto se toma de sus Item Defaults por empresa."
   },
   {
    "fieldname": "producto",
    "fieldtype": "Link",
-   "label": "Producto / Servicio",
+   "label": "Producto / Servicio (obsoleto)",
    "options": "Item",
-   "reqd": 1,
-   "description": "La cuenta de gasto se toma de los defaults del producto por empresa."
+   "hidden": 1,
+   "read_only": 1,
+   "description": "Campo histórico reemplazado por la tabla Productos. Se conserva solo para documentos antiguos."
   },
   {
    "fieldname": "descripcion",
@@ -116,7 +126,7 @@
    "fieldname": "section_lineas",
    "fieldtype": "Section Break",
    "label": "Distribución por Empresa",
-   "depends_on": "eval:doc.monto_total > 0 && doc.producto"
+   "depends_on": "eval:doc.monto_total > 0"
   },
   {
    "fieldname": "lineas_gasto",
@@ -130,7 +140,7 @@
    "fieldtype": "Section Break",
    "label": "Pago Inmediato (POS)",
    "collapsible": 1,
-   "depends_on": "eval:doc.monto_total > 0 && doc.producto"
+   "depends_on": "eval:doc.monto_total > 0"
   },
   {
    "fieldname": "pago_inmediato",
