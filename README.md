@@ -38,13 +38,13 @@ Navega a **Gastos Prorrateados → Perfil de Prorrateo** y define la distribuci�
 ### 2. Crear un Gasto Prorrateado
 
 1. Ve a **Gastos Prorrateados → Gasto Prorrateado → Nuevo**.
-2. Completa **Proveedor**, **Fecha** y **Monto Total**.
-3. Selecciona el **Producto/Servicio** que representa el gasto.
+2. Completa **Proveedor** y **Fecha**.
+3. Agrega uno o más **Productos** en la tabla, con su cantidad y precio unitario. El **Monto Total** se calcula automáticamente como la suma de los importes.
 4. Carga un **Perfil de Prorrateo** o agrega las líneas manualmente con empresa y porcentaje.
 5. (Opcional) Activa **Marcar como pagado al generar** para crear los pagos en el mismo paso.
 6. Envía el documento.
 
-ERPNext creará automáticamente una Purchase Invoice por cada empresa con el monto proporcional.
+ERPNext creará automáticamente una Purchase Invoice por cada empresa. Cada factura incluye **todos los productos del gasto**, prorrateados según el porcentaje de la empresa (se conserva la cantidad y se escala el precio unitario, de modo que el importe de cada línea = importe del producto × porcentaje). La cuenta de gasto de cada producto se resuelve por sus Item Defaults en esa empresa (o el override de cuenta de la línea).
 
 > **Fechas anteriores (backdating):** la **Fecha** del gasto se propaga como `posting_date` a las Purchase Invoices y Payment Entries generadas, incluso si es una fecha pasada (los documentos se crean con `set_posting_time = 1`). Si ERPNext rechaza una fecha anterior, revisa que: (1) caiga dentro de un **Año Fiscal activo** de la empresa (de lo contrario: `FiscalYearError`), y (2) no esté antes de **"Contabilidad congelada hasta"** (Accounts Settings → *Accounts Frozen Upto*). Ambos son configuración del ERP, no del módulo.
 
@@ -62,6 +62,7 @@ gastos_prorrateados/
 ├── gastos_prorrateados/
 │   ├── doctype/
 │   │   ├── gasto_prorrateado/       # DocType principal (submittable)
+│   │   ├── producto_gasto_prorrateado/ # Child: productos del gasto (item, qty, rate)
 │   │   ├── linea_gasto_prorrateado/ # Child: distribución por empresa
 │   │   ├── linea_pago_empresa/      # Child: configuración de pago por empresa
 │   │   ├── perfil_de_prorrateo/     # Plantillas de distribución
