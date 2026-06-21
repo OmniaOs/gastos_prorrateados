@@ -20,7 +20,7 @@
    "options": "Item",
    "reqd": 1,
    "in_list_view": 1,
-   "columns": 4
+   "columns": 3
   },
   {
    "fieldname": "descripcion",

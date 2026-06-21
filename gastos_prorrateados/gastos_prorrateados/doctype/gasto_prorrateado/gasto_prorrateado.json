@@ -15,6 +15,7 @@
   "monto_total",
   "section_producto",
   "productos",
+  "section_detalle_extra",
   "descripcion",
   "col_break_producto",
   "perfil_prorrateo",
@@ -96,6 +97,10 @@
    "options": "Producto Gasto Prorrateado",
    "reqd": 1,
    "description": "La cuenta de gasto de cada producto se toma de sus Item Defaults por empresa."
+  },
+  {
+   "fieldname": "section_detalle_extra",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "producto",
