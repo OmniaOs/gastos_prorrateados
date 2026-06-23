@@ -194,6 +194,17 @@ class GastoProrrateado(Document):
                 continue
 
             pi = frappe.get_doc("Purchase Invoice", linea.factura_compra)
+
+            # Pagar el SALDO REAL de la factura, no el monto prorrateado: el
+            # proveedor puede tener anticipos/pagos previos que ERPNext aplica al
+            # timbrar, dejando un outstanding distinto (incluso 0). Asignar el monto
+            # prorrateado rompía con "Importe asignado > cantidad pendiente".
+            monto_a_pagar = flt(pi.outstanding_amount)
+            if monto_a_pagar <= 0:
+                # Factura ya saldada (p.ej. por anticipos): no hay nada que pagar.
+                linea.db_set("estado_linea", "Pagada")
+                continue
+
             moneda_empresa = (
                 self.moneda
                 or frappe.get_cached_value("Company", linea.empresa, "default_currency")
@@ -221,8 +232,8 @@ class GastoProrrateado(Document):
             pe.party_type = "Supplier"
             pe.party = self.proveedor
             pe.party_name = frappe.get_cached_value("Supplier", self.proveedor, "supplier_name")
-            pe.paid_amount = flt(linea.monto)
-            pe.received_amount = flt(linea.monto)
+            pe.paid_amount = monto_a_pagar
+            pe.received_amount = monto_a_pagar
             pe.source_exchange_rate = flt(self.tipo_cambio) or 1.0
             pe.target_exchange_rate = flt(self.tipo_cambio) or 1.0
             pe.paid_from_account_currency = moneda_empresa
@@ -255,9 +266,9 @@ class GastoProrrateado(Document):
                 {
                     "reference_doctype": "Purchase Invoice",
                     "reference_name": linea.factura_compra,
-                    "allocated_amount": flt(linea.monto),
-                    "total_amount": flt(linea.monto),
-                    "outstanding_amount": flt(linea.monto),
+                    "allocated_amount": monto_a_pagar,
+                    "total_amount": flt(pi.grand_total),
+                    "outstanding_amount": flt(pi.outstanding_amount),
                 },
             )
 
