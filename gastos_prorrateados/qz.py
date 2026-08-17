@@ -41,3 +41,36 @@ def sign(request):
         hashes.SHA512(),
     )
     return b64encode(signature).decode("ascii")
+
+
+# -*- coding: utf-8 -*-
+# Helper de Jinja para Print Formats "raw printing" (ESC/POS): genera el bloque
+# completo de comandos de codigo QR (GS ( k, modelo 2) con el prefijo de longitud
+# calculado en tiempo real con chr()/len() reales de Python.
+#
+# Se expone como metodo global de Jinja (ver hooks.py -> jinja.methods) porque el
+# entorno Jinja de Frappe para Print Formats corre en una SandboxedEnvironment que
+# NO expone chr()/ord() -- sin este helper no se puede calcular el prefijo de
+# longitud (pL/pH) de un payload de tamano variable (p.ej. una URL) directamente
+# en la plantilla.
+def escpos_qr_command(data, size=6, ec_level=1):
+    """Devuelve los comandos ESC/POS (GS ( k) para imprimir `data` como QR."""
+    if not isinstance(data, str):
+        data = str(data)
+
+    GS = chr(0x1D)
+
+    def _store(cn, fn, payload=""):
+        body = cn + fn + payload
+        length = len(body)
+        pL = chr(length % 256)
+        pH = chr(length // 256)
+        return GS + "(" + "k" + pL + pH + body
+
+    cmd = ""
+    cmd += _store("1", "A", "2" + chr(0))  # seleccionar modelo 2
+    cmd += _store("1", "C", chr(size))  # tamano de modulo (1-16)
+    cmd += _store("1", "E", chr(0x30 + ec_level))  # nivel de correccion (0=L..3=H)
+    cmd += _store("1", "P", chr(0x30) + data)  # guardar datos (m=0)
+    cmd += _store("1", "Q", chr(0x30))  # imprimir el simbolo guardado
+    return cmd

@@ -24,5 +24,11 @@ fixtures = [
 app_include_css = []
 app_include_js = ["/files/qz_security.js"]
 
+# Metodos disponibles en Jinja de Print Formats (raw printing ESC/POS) --
+# ver gastos_prorrateados/qz.py:escpos_qr_command
+jinja = {
+    "methods": ["gastos_prorrateados.qz.escpos_qr_command"],
+}
+
 # DocTypes que se incluyen en el módulo
 required_apps = ["erpnext"]
